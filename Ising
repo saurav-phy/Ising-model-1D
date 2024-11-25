@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+L = 100  # Number of spins
+temperature = 1.0  # Temperature in units of J/kB
+num_steps = 1000  # Number of simulation steps
+
+# Initialize spins randomly to +1 or -1
+spins = np.random.choice([-1, 1], size=L)
+
+# Function to compute the total energy of the spin configuration
+def calculate_energy(spins):
+    energy = -sum(spins[i] * spins[i+1] for i in range(L - 1))
+    return energy
+
+# Function to calculate the magnetization
+def calculate_magnetization(spins):
+    return np.sum(spins)
+
+# Monte Carlo simulation (Metropolis algorithm)
+energies = []
+magnetizations = []
+for step in range(num_steps):
+    # Choose a random spin
+    i = np.random.randint(0, L)
+    # Calculate energy change if we flip this spin
+    delta_E = 2 * spins[i] * (spins[i - 1] + spins[(i + 1) % L])
+
+    # Metropolis criterion for accepting/rejecting the flip
+    if delta_E < 0 or np.random.rand() < np.exp(-delta_E / temperature):
+        spins[i] = -spins[i]
+
+    # Record energy and magnetization
+    energies.append(calculate_energy(spins))
+    magnetizations.append(calculate_magnetization(spins))
+
+# Plotting the results
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.plot(energies, label="Energy")
+plt.xlabel("Step")
+plt.ylabel("Energy")
+plt.title("Energy over time")
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(magnetizations, label="Magnetization")
+plt.xlabel("Step")
+plt.ylabel("Magnetization")
+plt.title("Magnetization over time")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
